@@ -18,13 +18,13 @@ const LoginPage = () => {
       return response.text();
     }).then(function(data) {
       console.log(data);
-      const {SessionID} = JSON.parse(data);
-      return SessionID
-    }).then((SessionID) => {
-      
-    if (SessionID !== false || SessionID !== undefined) {
+      const {SessionID, ChangePasswordAtNextLogin} = JSON.parse(data);
+      return { SessionID, ChangePasswordAtNextLogin}
+    }).then((dataSession) => {
+      const {SessionID, ChangePasswordAtNextLogin} = dataSession
+    if (dataSession.SessionID !== false || dataSession.SessionID !== undefined) {
       const validation = true
-      inSetState({...inState, validation, SessionID})
+      inSetState({...inState, validation, SessionID, ChangePasswordAtNextLogin})
     }
   })
   }

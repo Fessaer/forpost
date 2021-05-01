@@ -6,8 +6,7 @@ const AdminPanel = () => {
   
   const handleCheck = () => {
     const newDate = new Date(2021, 3, 15, 18, 43, 59)
-    const newDate2 = new Date(2021, 4, 15, 18, 43, 59)
-
+    console.log(inState, 'AdminPanel check state')
     console.log(newDate.toLocaleString())
   }
 
@@ -33,14 +32,13 @@ const AdminPanel = () => {
       Offset: 0, //(смещение от нуля по числу записей)
     }
     console.log(JSON.stringify(data), 'data.json')
-    const myHeaders = new Headers();
+    // const myHeaders = new Headers();
+    // myHeaders.append('Content-Type', 'application/json');
+    // myHeaders.append('SessionID', connectId);
 
-    
-    myHeaders.append('SessionID', connectId);
     await fetch(urle, {
       method: 'POST',
-      headers: myHeaders,
-      //body: JSON.stringify(data)
+      body: JSON.stringify(data)
     }).then(function(response) {
       return response.text();
     }).then(function(data) {
