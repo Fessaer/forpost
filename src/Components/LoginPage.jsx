@@ -1,28 +1,32 @@
 import React, { useContext, useState} from 'react';
 import { Context } from './Store'
-const axios = require('axios')
-let base64 = require('base-64');
 
 const LoginPage = () => {
   const [state, setState] = useState({});
   const [inState, inSetState] = useContext(Context);
   
 
-  const handleClick = () => {
-    let url = 'https://va.fpst.ru/api/login';
-    const { login } = state;
-    const { password } = state;
-    const fn = async () => {
-      const data = {
-        Login: login,
-        Password: password,
-      };
+  const handleClick = async(e) => {
+    e.preventDefault()
+    let urle = 'https://va.fpst.ru/api/login';
+    
+    const form = document.querySelector('form');
+    await fetch(urle, {
+      method: 'POST',
+      body: new FormData(form)
+    }).then(function(response) {
+      return response.text();
+    }).then(function(data) {
+      console.log(data);
+      const {SessionID} = JSON.parse(data);
+      return SessionID
+    }).then((SessionID) => {
       
-      const response = await axios.post(url, {data});
-      console.log(response)
+    if (SessionID !== false || SessionID !== undefined) {
+      const validation = true
+      inSetState({...inState, validation, SessionID})
     }
-    fn()
-    // inSetState({...inState, ...state})
+  })
   }
 
   const handleLogin = (e) => {
@@ -34,18 +38,21 @@ const LoginPage = () => {
     const password = e.target.value
     setState({...state, password})
   }
+  const handleForm = (e) => {
+    console.log(e.target.value)
+  }
 
 return (
   
-  <div style={{margin: "10% 0px"}} className="container-fluid d-flex h-100 justify-content-center align-items-center p-0">
+  <div style={{margin: "10% 0px"}} id="form" className="container-fluid d-flex h-100 justify-content-center align-items-center p-0">
     <div className="row bg-white shadow-sm">
       <div className="col border rounded p-4">
         <h3 className="text-center mb-4">Вход</h3>
-        <form style={{margin: "10px", padding: "10px"}}>
+        <form style={{margin: "10px", padding: "10px"}} onChange={handleForm}>
           <input
           style={{margin: "10px"}}
-          placeholder="username" 
-          name="username" 
+          placeholder="Login" 
+          name="Login" 
           autoComplete="username" 
           required id="username" 
           className="form-control" 
@@ -54,8 +61,8 @@ return (
         
           <input
           style={{margin: "10px"}} 
-          placeholder="password"
-          name="password"
+          placeholder="Password"
+          name="Password"
           autoComplete="current-password"
           required id="password"
           className="form-control"

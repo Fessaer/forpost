@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 
 const initialState = {
-  login: '',
-  password: 'nwtimon@yandex.ru',
   validation: false,
-  token: '',
-};
+  SessionID: null
+}
 
 export const Context = React.createContext();
 
