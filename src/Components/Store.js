@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 
 const initialState = {
   validation: false,
-  SessionID: null
+  SessionID: null,
+  dataResonse: null,
 }
 
 export const Context = React.createContext();

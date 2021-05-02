@@ -14,6 +14,8 @@ const LoginPage = () => {
     await fetch(urle, {
       method: 'POST',
       body: new FormData(form)
+
+      
     }).then(function(response) {
       return response.text();
     }).then(function(data) {
