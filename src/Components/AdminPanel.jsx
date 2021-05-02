@@ -54,18 +54,43 @@ const AdminPanel = () => {
       inSetState({...inState, dataResonse})
     }).then(err => console.log(err, 'err'))
   }
+
   const { dataResonse } = inState;
+  let arrFace = []
+  const fnResponse = (data) => {
+    const arrRoot = data.elements;
+    arrRoot.map((item) => {
+      if (item.name === "face") {
+        console.log('1')
+        fnResponse(item)
+      }
+      return item
+    })
+    return arrRoot
+  }
+  let root = {}
+  if (dataResonse !== null) {
+    root = fnResponse(dataResonse)
+    console.log(root, 'root')
+  }
+  
   return (
     <>
     <h1>Admin Panel</h1>
     <button onClick={handleCheck}>check</button>
     <button onClick={handleExit}>Выход</button>
     <button onClick={handleResponseData}>Запрос на сервер</button>
-    {dataResonse === null ? null : dataResonse.elements.map((item) => {
-      if (item.type === 'elements') {
-        
-      }
-      return <h1 key={_.uniqueId()}>{item.type}</h1>
+    {dataResonse === null ? null : dataResonse.elements[0].elements.map((item) => {
+      
+      return (
+          <>
+          <p key={_.uniqueId(199)}>Время {item.elements[0].elements[0].text}</p>
+          <p key={_.uniqueId(299)}>Камера {item.elements[1].elements[0].text}</p>
+          <p key={_.uniqueId(399)}>{item.elements[2].elements[0].text}</p>
+          <img key={_.uniqueId(499)} src={`data:image/png;base64,${item.elements[3].elements[0].text}`} />    
+          </>  
+        )
+          
       })}
     </>
   );
