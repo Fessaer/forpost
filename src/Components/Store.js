@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 const initialState = {
   validation: false,
   SessionID: null,
-  dataResonse: null,
+  dataResponseState: [],
+  dataResponseStateRecharts: [],
 }
 
 export const Context = React.createContext();
