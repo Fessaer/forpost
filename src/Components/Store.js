@@ -5,6 +5,8 @@ const initialState = {
   SessionID: null,
   dataResponseState: [],
   dataResponseStateRecharts: [],
+  dataRecharts: [],
+  offsetStateTest: []
 }
 
 export const Context = React.createContext();

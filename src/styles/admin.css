@@ -1,0 +1,32 @@
+
+.lines {
+  margin-bottom: 0px;
+  font-size: 12px;
+}
+.card_settings {
+  width: 270px;
+  margin: 4px auto;
+  background-color: rgb(202, 221, 215);
+  border-radius: 5px;
+}
+
+.btn_castom {
+  margin: 24px 5px;
+  bottom:0;
+  width: 200px; 
+}
+.btn_castom_recharts {
+  margin: 40px 5px 45px;
+  width: 200px;
+}
+.datePiker_castom {
+  margin: 2px 5px;
+  width: 200px; 
+}
+.next_btn {
+  margin: 5px 5px 5px 10px;
+  width: 200px;
+}
+.cont_id {
+  height: 100%;
+}
