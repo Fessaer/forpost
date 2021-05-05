@@ -22,11 +22,13 @@ const AdminPanel = () => {
     const next = document.querySelector('.next_btn')
     next.classList.remove('d-none')
     next.classList.add('visible')
+  
     console.log(inState, 'AdminPanel check state')
   }
 
   const handleExit = (e) => {
     e.preventDefault()
+    
     const validation = false;
     const SessionID = null;
     const dataResponseState = [];
@@ -34,9 +36,9 @@ const AdminPanel = () => {
     inSetState({validation, SessionID, dataResponseState, dataResponseStateRecharts})
   }
 
-  const handleDataPicker = () => {
-    console.log(endDate.toISOString().substring(0, 10) + ' 00:00:00')
-  }
+  // const handleDataPicker = () => {
+  //   console.log(endDate.toISOString().substring(0, 10) + ' 00:00:00')
+  // }
   
   const handleResponseDataNext = () => {
     offset = offset + 20
@@ -99,11 +101,10 @@ const AdminPanel = () => {
       <div className="container cont_id">
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">Forpost</a>
+          <a className="navbar-brand" href="#/">Forpost</a>
               <button className="btn btn-outline-primary" type="button" data-mdb-ripple-color="dark" onClick={handleExit}>
                 Выход
               </button>
-          
         </div>
       </nav>
         <div className="row">
@@ -113,7 +114,7 @@ const AdminPanel = () => {
             {/* <button className="btn btn-info btn_castom" onClick={handleNewResponseData}>Запрос на сервер</button> */}
           </div>
         </div>
-          <Recharts />
+        <Recharts />
         <div className="d-flex flex-wrap-reverse">
           <div className="">
             <p>выбрать дату от</p>
@@ -123,11 +124,10 @@ const AdminPanel = () => {
             onChange={date => setStartDate(date)}
             selectsStart
             dateFormat='dd/MM/yyyy'
-            className="form-control"
+            className="form-control datePiker_castom"
             maxDate={new Date()}
         />
           </div>
-          
           <div className="">
           <p>выбрать дату до</p>
           <DatePicker
@@ -136,19 +136,22 @@ const AdminPanel = () => {
             onChange={date => setEndDate(date)}
             selectsEnd
             dateFormat='dd/MM/yyyy'
-            className="form-control"
+            className="form-control datePiker_castom"
             maxDate={new Date()} 
         />
           </div>
           <div className="">
-            <p></p>  
-            <button className="btn btn-info btn_castom" onClick={handleNewResponseData}>Поиск</button>
+            <button className="btn btn-info btn_castom_recharts" onClick={handleNewResponseData}>Поиск</button>
+          </div>
+          <div>
+            
           </div>
           </div>
+          
         <div className="row card_settings_old"> 
             {dataResponseState.map((item) => {
             return (
-            <div className="col-md-6 col-lg-3 card_settings">
+            <div key={_.uniqueId()}className="col-md-6 col-lg-3 card_settings">
               <div className="row no-gutters">
                 <div className="col-md-5">
                       {'elements' in item.elements[3] ? 
@@ -179,6 +182,7 @@ const AdminPanel = () => {
           
           
         </div>
+        
         <button className="btn btn-info w-30 next_btn d-none" id="next" onClick={handleResponseDataNext}>Продолжить поиск</button>
         <Footer />
         </div>
