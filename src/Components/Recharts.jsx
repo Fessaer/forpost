@@ -10,7 +10,6 @@ import { CartesianGrid,
 import { Context } from './Store';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import '../styles/admin.css';
 let convert = require('xml-js');
 let _ = require('lodash');
 
@@ -32,10 +31,11 @@ const Recharts = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="custom-tooltip bg-info opacity-(3-0) rounded">
-          <p className="label">Дата: {`${label}`}</p>
-          <p className="intro">{getIntroOfPage(label)}</p>
-          <p className="desc">Посещений за день: {`${payload[0].value}`}</p>
+        <div className="lh-1 p-1 bg-info rounded"
+        style={{'width': "auto"}}>
+          <p className="text-wrap m-0" style={{"fontSize": "13px"}}>Дата: {`${label}`}<br />
+          {getIntroOfPage(label)}
+          Посещений за день: {`${payload[0].value}`}</p>
         </div>
       );
     }
@@ -50,15 +50,17 @@ const Recharts = () => {
   dt.setDate(d.getDate() - 10)
 
   const intervalResolve = () => {
+    if (startDate > endDate){
+      console.log('err date');
+    } else {
     offsetStateTest = [];
-    // dataRecharts = [];
     offset = 0
     let timerId = setInterval(() => {
       offset = offset + 1000
       return handleNewResponseData(offset)}, 3000);
-      
     setTimeout(() => { clearInterval(timerId)}, 30000);
     setTimeout(() => { filterResponseResult(offsetStateTest)}, 40000);
+    }
   }
 
   const filterResponseResult = (arr) => {
@@ -71,16 +73,12 @@ const Recharts = () => {
                 arrFelter[arrFelter[i]] = 1;
               }
             }
-            // console.log(arrFelter, 'no sorted')
             arrFelter.sort(function(a, b) {
               return arrFelter[b] - arrFelter[a];
             });
             const arrayRecharts = arrFelter.map((el, i, a) => ({
-              ['date']:el, ['count']: a[el]
+              "date":el, "count": a[el]
             })); 
-            // let { dataRecharts } = inState
-            // let arrs = arrayRecharts
-            
             var result = arrayRecharts.sort(function(a,b) {
               return Date.parse(a.date) - Date.parse(b.date);
               }).reduce(function(hash){
@@ -94,30 +92,29 @@ const Recharts = () => {
               return p;
               };
             }(Object.create(null)),[]);
-            
-            
             const arrayNullDate = result.map((item) => {
               const d = new Date(item).toISOString().substring(0, 10)
               return ({ "date": d, "count": 0 })
             })
             const joinArrDate = [...arrayNullDate, ...arrayRecharts] 
             let arrSort = joinArrDate.sort((prev, next) => new Date(prev.date) - new Date(next.date))
-            
-              console.log(arrSort, inState , 'data')
-              dataRechartsLocal = arrSort;
-              console.log(dataRechartsLocal)
-              inSetState({...inState, dataRecharts: [...arrSort]})
-            
-            
-  }
-  const check = () => {
-    console.log(inState.dataRecharts)
+            let arrLocaleDate = arrSort.map((item) => {
+              const n = new Date(item.date)
+              let dt = item.date
+              const dateNew = `${n.getDate()}.${dt.substring(5, 7)}.${n.getFullYear()}`
+              return {date: dateNew, count: item.count}
+            })
+              console.log(inState , 'data')
+              inSetState({...inState, dataRecharts: [...arrLocaleDate]})
   }
 
+  // const check = () => {
+  //   console.log(inState.dataRecharts)
+  // }
 
     const handleNewResponseData = async(offset = 0) => {
       let urle = 'https://va.fpst.ru/api/exportreport';
-      console.log(offset, 'offset')
+      // console.log(offset, 'offset')
       const connectId = inState.SessionID
       const form = new FormData()
       form.set('SessionID', connectId)
@@ -126,9 +123,6 @@ const Recharts = () => {
       form.set('To', `${endDate.toISOString().substring(0, 10) + ' 23:55:00'}`)
       form.set('Offset', offset)
       form.set('Limit', 1000)
-      if (startDate > endDate){
-        console.log('err date');
-      } else {
         await fetch(urle, {
           method: 'POST',
           body: form
@@ -142,7 +136,7 @@ const Recharts = () => {
         return result2;
       }).then(function(pars) {
           const dataResponse = JSON.parse(pars);
-          console.log(dataResponse)
+          // console.log(dataResponse)
           if ('face' in dataResponse.faces) {
             const array = dataResponse.faces.face
             offsetStateTest = [...offsetStateTest, ...array]
@@ -151,48 +145,41 @@ const Recharts = () => {
               return console.log('в ответе серевера массива нет')
             }
       }).catch(err => console.log(err, 'err'))
-    }
+    
   }
-  let dataRechartsLocal = []
   return (
     <>
-      <div className="d-flex flex-wrap-reverse">
-          <div className="">
+      <div className="p-4 d-flex align-items-end">
+          <div className="m-1">
             <p>выбрать дату от</p>
-          <DatePicker
-            key={_.uniqueId()}
-            selected={startDate}
-            onChange={date => setStartDate(date)}
-            selectsStart
-            dateFormat='dd/MM/yyyy'
-            className="form-control datePiker_castom"
-            maxDate={new Date()}
-          />
+            <DatePicker
+              key={_.uniqueId()}
+              selected={startDate}
+              onChange={date => setStartDate(date)}
+              selectsStart
+              dateFormat='dd/MM/yyyy'
+              className="form-control border-primary"
+              maxDate={new Date()}
+            />
           </div>
-          
-          <div className="">
-          <p>выбрать дату до</p>
-          <DatePicker
-            key={_.uniqueId()}
-            selected={endDate} 
-            onChange={date => setEndDate(date)}
-            selectsEnd
-            dateFormat='dd/MM/yyyy'
-            className="form-control datePiker_castom"
-            maxDate={new Date()} 
-          />
+          <div className="m-1">
+            <p>выбрать дату до</p>
+            <DatePicker
+              key={_.uniqueId()}
+              selected={endDate} 
+              onChange={date => setEndDate(date)}
+              selectsEnd
+              dateFormat='dd/MM/yyyy'
+              className="form-control border-primary"
+              maxDate={new Date()} 
+            />
           </div>
-          <div className="">
-          
-            <button className="btn btn-info btn_castom_recharts" onClick={intervalResolve}>Получить данные</button>
-          </div>
-          <div>
-            
+          <div className="m-1">
+            <button className="btn btn-info btn-outline-primary" style={{"width": "170px"}} onClick={intervalResolve}><p className="p-0 m-0 text-light">Получить данные</p></button>
           </div>
           </div>
-        
-        <div>
-        <ResponsiveContainer width="100%" height={400}>
+        <div className="p-0">
+        <ResponsiveContainer width="95.5%" height={400}>
           <LineChart data={inState.dataRecharts}>
             <Line type="monotone" dataKey="count" stroke="#8884d8" />
               <CartesianGrid stroke="#ccc" strokeDasharray="3 3" />
@@ -201,6 +188,8 @@ const Recharts = () => {
               style={{
                 fontSize: '0.7rem',
                 fontFamily: 'Times New Roman',
+                margin: '0px',
+                
               }}
               />
               <YAxis 
@@ -210,13 +199,11 @@ const Recharts = () => {
                 fontFamily: 'Times New Roman',
             }}
               />
-              {/* <Tooltip /> */}
               <Tooltip content={<CustomTooltip />}/>
             </LineChart>
         </ResponsiveContainer>
-        </div>
-        </>
-    
+      </div>
+    </>
   )
 }
 export default Recharts;

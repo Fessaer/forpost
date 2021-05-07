@@ -5,7 +5,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Recharts from './Recharts'
-import '../styles/admin.css'
 var convert = require('xml-js');
 var _ = require('lodash')
 
@@ -22,13 +21,10 @@ const AdminPanel = () => {
     const next = document.querySelector('.next_btn')
     next.classList.remove('d-none')
     next.classList.add('visible')
-  
-    console.log(inState, 'AdminPanel check state')
   }
 
   const handleExit = (e) => {
     e.preventDefault()
-    
     const validation = false;
     const SessionID = null;
     const dataResponseState = [];
@@ -53,23 +49,26 @@ const AdminPanel = () => {
   }
 
   const handleResponseData = async() => {
-    console.log(offset, 'handleResponseData')
-    let urle = 'https://va.fpst.ru/api/exportreport';
-    const connectId = inState.SessionID
-    const form = new FormData()
-    form.set('SessionID', connectId)
-    form.set('Analytics', 'FaceRecognition')
-    form.set('From', `${startDate.toISOString().substring(0, 10) + ' 00:00:00'}`)
-    form.set('To', `${endDate.toISOString().substring(0, 10) + ' 23:30:10'}`)
-    form.set('Offset', offset)
-    form.set('Limit', 20)
     if (startDate > endDate){
+      console.log('err date');
+    } else {
+      let urle = 'https://va.fpst.ru/api/exportreport';
+      const connectId = inState.SessionID
+      const { form } = inState;
+      const responseForm = new FormData(form)
+      responseForm.set('SessionID', connectId)
+      responseForm.set('Analytics', 'FaceRecognition')
+      responseForm.set('From', `${startDate.toISOString().substring(0, 10) + ' 00:00:00'}`)
+      responseForm.set('To', `${endDate.toISOString().substring(0, 10) + ' 23:30:10'}`)
+      responseForm.set('Offset', offset)
+      responseForm.set('Limit', 20)
+    if (startDate > endDate) {
       console.log('err date');
     } else {
 
     await fetch(urle, {
       method: 'POST',
-      body: form
+      body: responseForm
     }).then(function(response) {
       return response.text();
     }).then(function(data) {
@@ -89,34 +88,37 @@ const AdminPanel = () => {
           inSetState({...inState, dataResponseState: [...dataResponseState, ...dataResponse]})
         }
       }
-    }).then(err => console.log(err, 'err'))
+    }).catch(err => console.log(err, 'err'))
     handleCheck()
+    }
+  }}
+
+  const formatLocaleDate = (str) => {
+    const g = str.substr(0, 4)
+    const m = str.substr(5, 2)
+    const d = str.substr(8, 5)
+    return `${d}.${m}.${g}`
   }
-}
 
   const { dataResponseState } = inState;
   
   return (
-      
-      <div className="container cont_id">
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
+      <>
+      <div className="p-0" style={{backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
+      <nav className="navbar navbar-expand-lg navbar-light bg-light pt-0 pb-0 ">
+        <div className="container-fluid p-2 border-bottom border-primary" style={{backgroundColor: 'rgba(177, 229, 239, 1)'}}>
           <a className="navbar-brand" href="#/">Forpost</a>
               <button className="btn btn-outline-primary" type="button" data-mdb-ripple-color="dark" onClick={handleExit}>
                 Выход
               </button>
         </div>
       </nav>
-        <div className="row">
-          <div className="col-xs-12">
-            {/* <button className="btn btn-info btn_castom" onClick={handleCheck}>check</button> */}
-            {/* <button className="btn btn-info btn_castom" onClick={handleExit}>Выход</button> */}
-            {/* <button className="btn btn-info btn_castom" onClick={handleNewResponseData}>Запрос на сервер</button> */}
-          </div>
+        <div>
+          <Recharts />
         </div>
-        <Recharts />
-        <div className="d-flex flex-wrap-reverse">
-          <div className="">
+        
+        <div className="p-4 d-flex d-flex align-items-end">
+          <div className="m-1">
             <p>выбрать дату от</p>
           <DatePicker
             key={_.uniqueId()}
@@ -124,11 +126,11 @@ const AdminPanel = () => {
             onChange={date => setStartDate(date)}
             selectsStart
             dateFormat='dd/MM/yyyy'
-            className="form-control datePiker_castom"
+            className="form-control border-primary"
             maxDate={new Date()}
         />
           </div>
-          <div className="">
+          <div className="m-1">
           <p>выбрать дату до</p>
           <DatePicker
             key={_.uniqueId()}
@@ -136,56 +138,55 @@ const AdminPanel = () => {
             onChange={date => setEndDate(date)}
             selectsEnd
             dateFormat='dd/MM/yyyy'
-            className="form-control datePiker_castom"
+            className="form-control border-primary"
             maxDate={new Date()} 
         />
           </div>
-          <div className="">
-            <button className="btn btn-info btn_castom_recharts" onClick={handleNewResponseData}>Поиск</button>
-          </div>
-          <div>
-            
-          </div>
+          <div className="m-1">
+            <button className="btn btn-info btn-outline-primary" style={{"width": "170px"}} onClick={handleNewResponseData}><p className="p-0 m-0 text-light">Поиск</p></button>
           </div>
           
-        <div className="row card_settings_old"> 
+          </div>
+          <div className="d-flex flex-wrap justify-content-center" style={{"clear": "both"}}>
             {dataResponseState.map((item) => {
+              const date = item.elements[0].elements[0]
+              const day = {...date}
+              const time = {...date}
+              // .substring(10, 0)
             return (
-            <div key={_.uniqueId()}className="col-md-6 col-lg-3 card_settings">
-              <div className="row no-gutters">
-                <div className="col-md-5">
+            <div key={_.uniqueId()}className="m-1 border border-primary rounded col-md-4 col-lg-4 p-2 d-flex"
+              style={{"width": "280px",
+              backgroundColor: 'rgba(177, 229, 239, 1)'}}>
+                <div className="">
                       {'elements' in item.elements[3] ? 
                       <img src={`data:image/png;base64,${item.elements[3].elements[0].text}`} 
                       alt="altImage" /> : null}
                 </div>
                 <div className="col-md-5">
                   <div className="">
-                    <p className="card-text lines">
-                      {item.elements[0].elements[0].text}
-                    </p>
-                    <p className="card-text lines">    
-                          Камера {item.elements[1].elements[0].text}
-                    </p>
-                    <p className="card-text lines">   
-                          {item.elements[2].elements[0].text}
+                    <p className="p-2" style={{"fontSize": "12px"}}>
+                      Дата: {formatLocaleDate(day.text.substring(0, 10))}<br />
+                      Время: {time.text.substr(10)}<br />
+                      Камера {item.elements[1].elements[0].text}<br />
+                      {item.elements[2].elements[0].text}
                     </p>
                     <p className="card-text">
                     <small className="text-muted">{'elements' in item.elements[4] ? item.elements[4].elements[0].text : null}</small>
                     </p>
                   </div>
                 </div>
-              </div>
             </div>
               )
               })}
-          
-          
-          
+            </div>
+            <div className="d-flex justify-content-around p-2">
+              <button className="btn btn-info next_btn d-none btn-outline-primary" style={{"width": "170px"}} id="next" onClick={handleResponseDataNext}><p className="p-0 m-0 text-light">Продолжить поиск</p></button>
+            </div>
         </div>
-        
-        <button className="btn btn-info w-30 next_btn d-none" id="next" onClick={handleResponseDataNext}>Продолжить поиск</button>
-        <Footer />
+        <div className="p-0 m-0 pt-5" style={{backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
+          <Footer />
         </div>
+        </>
         
   );
 }
