@@ -5,7 +5,6 @@ import Auth from './Components/Auth'
 
 const App = (props) => {
 
-    console.log(props)
     return (
       <Store>
           <Auth />

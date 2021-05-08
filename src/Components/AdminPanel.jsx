@@ -16,11 +16,13 @@ const AdminPanel = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [inState, inSetState] = useContext(Context);
   let { offset } = offsetState
-  
+
   const handleCheck = () => {
     const next = document.querySelector('.next_btn')
+    const footer = document.querySelector('.footer_abs')
     next.classList.remove('d-none')
     next.classList.add('visible')
+    footer.classList.remove('position-absolute')
   }
 
 const handleExit = () => {
@@ -96,11 +98,11 @@ const handleExit = () => {
         if (offset === 0) {
           let dataResponseState = dataResponse
           inSetState({...inState, dataResponseState})
-          // handleCheck()
+          handleCheck()
         } else {
           const { dataResponseState } = inState
           inSetState({...inState, dataResponseState: [...dataResponseState, ...dataResponse]})
-          handleCheck()
+          // handleCheck()
         }
       }
     }).catch(err => handleExit())
@@ -118,8 +120,8 @@ const handleExit = () => {
   const { dataResponseState } = inState;
   
   return (
-      <>
-      <div className="p-0" style={{backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
+      <div className="container mb-0 p-0 h-100">
+      <div className="p-0" style={{"backgroundColor": '#ddd', "height": "100vh", "position": "relative"}}>
       <nav className="navbar navbar-expand-lg navbar-light bg-light pt-0 pb-0 ">
         <div className="container-fluid p-2 border-bottom border-primary" style={{backgroundColor: 'rgba(177, 229, 239, 1)'}}>
           <a className="navbar-brand" href="#/">Forpost</a>
@@ -162,7 +164,7 @@ const handleExit = () => {
           </div>
           
           </div>
-          <div className="d-flex flex-wrap justify-content-center" style={{"clear": "both"}}>
+          <div className="d-flex flex-wrap justify-content-center" style={{backgroundColor: '#ddd'}}>
             {dataResponseState.map((item) => {
               const date = item.elements[0].elements[0]
               const day = {...date}
@@ -193,14 +195,15 @@ const handleExit = () => {
               )
               })}
             </div>
-            <div className="d-flex justify-content-around p-2">
-              <button className="btn btn-info next_btn d-none btn-outline-primary" style={{"width": "170px"}} id="next" onClick={handleResponseDataNext}><p className="p-0 m-0 text-light">Продолжить поиск</p></button>
+            <div className="d-flex justify-content-around d-none next_btn pt-4 pb-4" style={{backgroundColor: '#ddd'}}>
+              <button className="btn btn-info btn-outline-primary" style={{"width": "170px"}} id="next" onClick={handleResponseDataNext}><p className="p-0 m-0 text-light">Продолжить поиск</p></button>
+            </div>
+            <div className="w-100 p-0 m-0 footer_abs position-absolute" style={{bottom: '0', backgroundColor: '#ddd'}}>
+              <Footer />
             </div>
         </div>
-        <div className="p-0 m-0 pt-5" style={{backgroundColor: 'rgba(0, 0, 0, 0.05)'}}>
-          <Footer />
+        
         </div>
-        </>
         
   );
 }
