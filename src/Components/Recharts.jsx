@@ -13,7 +13,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 let convert = require('xml-js');
 let _ = require('lodash');
 
-
 const Recharts = () => {
   const [inState, inSetState] = useContext(Context);
   let d = new Date();
@@ -22,10 +21,9 @@ const Recharts = () => {
 
   const getIntroOfPage = (label) => {
     if (label.substring(0, 10) === '2021') {
-      return "Распознано лиц за день ";
+      return "Распознано лиц за день";
     }
-    
-    return '';
+    return;
   };
   
   const CustomTooltip = ({ active, payload, label }) => {
@@ -39,7 +37,6 @@ const Recharts = () => {
         </div>
       );
     }
-  
     return null;
   };
 
@@ -53,6 +50,7 @@ const Recharts = () => {
     if (startDate > endDate){
       console.log('err date');
     } else {
+    inSetState({...inState, disabled: true})
     offsetStateTest = [];
     offset = 0
     let timerId = setInterval(() => {
@@ -104,17 +102,19 @@ const Recharts = () => {
               const dateNew = `${n.getDate()}.${dt.substring(5, 7)}.${n.getFullYear()}`
               return {date: dateNew, count: item.count}
             })
-              console.log(inState , 'data')
-              inSetState({...inState, dataRecharts: [...arrLocaleDate]})
+              inSetState({...inState, dataRecharts: [...arrLocaleDate], disabled: false})
   }
 
-  // const check = () => {
-  //   console.log(inState.dataRecharts)
-  // }
+  const handleExit = () => {
+    const validation = false;
+    const SessionID = null;
+    const dataResponseState = [];
+    const dataResponseStateRecharts = [];
+    inSetState({validation, SessionID, dataResponseState, dataResponseStateRecharts})
+  }
 
     const handleNewResponseData = async(offset = 0) => {
       let urle = 'https://va.fpst.ru/api/exportreport';
-      // console.log(offset, 'offset')
       const connectId = inState.SessionID
       const form = new FormData()
       form.set('SessionID', connectId)
@@ -135,22 +135,26 @@ const Recharts = () => {
         });
         return result2;
       }).then(function(pars) {
-          const dataResponse = JSON.parse(pars);
-          // console.log(dataResponse)
+        const dataResponse = JSON.parse(pars);
+        if (Object.prototype.hasOwnProperty.call(dataResponse, 'Error') && dataResponse.Error === "Ошибка авторизации") {
+          // console.log(dataResponse.Error === "Ошибка авторизации")
+          handleExit()
+        }
           if ('face' in dataResponse.faces) {
             const array = dataResponse.faces.face
             offsetStateTest = [...offsetStateTest, ...array]
-            // inSetState({...inState, offsetStateTest})
             } else {
-              return console.log('в ответе серевера массива нет')
+              //  console.log('в ответе серевера массива нет')
+              return;
             }
-      }).catch(err => console.log(err, 'err'))
+      }).catch(err => handleExit())
     
   }
+  let { disabled } = inState
   return (
     <>
-      <div className="p-4 d-flex align-items-end">
-          <div className="m-1">
+      <div className="p-4 d-flex justify-content-start align-items-end row">
+          <div className="m-1 col-md-auto">
             <p>выбрать дату от</p>
             <DatePicker
               key={_.uniqueId()}
@@ -162,7 +166,7 @@ const Recharts = () => {
               maxDate={new Date()}
             />
           </div>
-          <div className="m-1">
+          <div className="m-1 col-md-auto">
             <p>выбрать дату до</p>
             <DatePicker
               key={_.uniqueId()}
@@ -174,10 +178,15 @@ const Recharts = () => {
               maxDate={new Date()} 
             />
           </div>
-          <div className="m-1">
-            <button className="btn btn-info btn-outline-primary" style={{"width": "170px"}} onClick={intervalResolve}><p className="p-0 m-0 text-light">Получить данные</p></button>
+          <div className="m-1 col-md-auto">
+          <button className="btn btn-info btn-outline-primary" style={{"width": "205px"}} type="button" disabled={disabled} onClick={intervalResolve}>
+          {disabled ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : null}
+          {disabled ? <span className="text-dark"> Загрузка...</span> : <span className="p-0 m-0 text-light">Получить данные</span>}
+            
+          </button>
+            {/* <button className="btn btn-info btn-outline-primary" style={{"width": "170px"}} onClick={intervalResolve}><p className="p-0 m-0 text-light">Получить данные</p></button> */}
           </div>
-          </div>
+        </div>
         <div className="p-0">
         <ResponsiveContainer width="95.5%" height={400}>
           <LineChart data={inState.dataRecharts}>

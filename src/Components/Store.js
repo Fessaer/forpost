@@ -6,7 +6,8 @@ const initialState = {
   dataResponseState: [],
   dataResponseStateRecharts: [],
   dataRecharts: [],
-  offsetStateTest: []
+  offsetStateTest: [],
+  disabled: false
 }
 
 export const Context = React.createContext();

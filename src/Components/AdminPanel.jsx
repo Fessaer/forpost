@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Recharts from './Recharts'
+import validateXML from './validateXML'
 var convert = require('xml-js');
 var _ = require('lodash')
 
@@ -14,7 +15,6 @@ const AdminPanel = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [inState, inSetState] = useContext(Context);
-
   let { offset } = offsetState
   
   const handleCheck = () => {
@@ -23,8 +23,8 @@ const AdminPanel = () => {
     next.classList.add('visible')
   }
 
-  const handleExit = (e) => {
-    e.preventDefault()
+const handleExit = () => {
+    // e.preventDefault()
     const validation = false;
     const SessionID = null;
     const dataResponseState = [];
@@ -50,13 +50,17 @@ const AdminPanel = () => {
 
   const handleResponseData = async() => {
     if (startDate > endDate){
-      console.log('err date');
+      // console.log('err date');
+      return;
     } else {
       let urle = 'https://va.fpst.ru/api/exportreport';
       const connectId = inState.SessionID
-      const { form } = inState;
-      const responseForm = new FormData(form)
+      const changePassword = inState.ChangePasswordAtNextLogin
+      // console.log(changePassword)
+      // const { form } = inState;
+      const responseForm = new FormData()
       responseForm.set('SessionID', connectId)
+      responseForm.set('ChangePasswordAtNextLogin', changePassword)
       responseForm.set('Analytics', 'FaceRecognition')
       responseForm.set('From', `${startDate.toISOString().substring(0, 10) + ' 00:00:00'}`)
       responseForm.set('To', `${endDate.toISOString().substring(0, 10) + ' 23:30:10'}`)
@@ -65,13 +69,22 @@ const AdminPanel = () => {
     if (startDate > endDate) {
       console.log('err date');
     } else {
-
     await fetch(urle, {
       method: 'POST',
       body: responseForm
     }).then(function(response) {
+      // console.log(response, 'response')
       return response.text();
     }).then(function(data) {
+      if(!validateXML(data)) {
+        let parseData = JSON.parse(data)
+        if (Object.prototype.hasOwnProperty.call(parseData, 'Error') && parseData.Error === "Ошибка авторизации") {
+          console.log(parseData.Error === "Ошибка авторизации")
+          handleExit()
+        }
+      }
+      // console.log(JSON.parse(data))
+      // console.log(data, 'data')
       let result = convert.xml2json(data, {compact: false});
       return result;
     }).then(function(pars) {
@@ -83,13 +96,15 @@ const AdminPanel = () => {
         if (offset === 0) {
           let dataResponseState = dataResponse
           inSetState({...inState, dataResponseState})
+          // handleCheck()
         } else {
           const { dataResponseState } = inState
           inSetState({...inState, dataResponseState: [...dataResponseState, ...dataResponse]})
+          handleCheck()
         }
       }
-    }).catch(err => console.log(err, 'err'))
-    handleCheck()
+    }).catch(err => handleExit())
+    
     }
   }}
 
@@ -117,8 +132,8 @@ const AdminPanel = () => {
           <Recharts />
         </div>
         
-        <div className="p-4 d-flex d-flex align-items-end">
-          <div className="m-1">
+        <div className="p-4 row d-flex align-items-end">
+          <div className="m-1 col-md-auto">
             <p>выбрать дату от</p>
           <DatePicker
             key={_.uniqueId()}
@@ -130,7 +145,7 @@ const AdminPanel = () => {
             maxDate={new Date()}
         />
           </div>
-          <div className="m-1">
+          <div className="m-1 col-md-auto">
           <p>выбрать дату до</p>
           <DatePicker
             key={_.uniqueId()}
@@ -142,8 +157,8 @@ const AdminPanel = () => {
             maxDate={new Date()} 
         />
           </div>
-          <div className="m-1">
-            <button className="btn btn-info btn-outline-primary" style={{"width": "170px"}} onClick={handleNewResponseData}><p className="p-0 m-0 text-light">Поиск</p></button>
+          <div className="m-1 col-md-auto">
+            <button className="btn btn-info btn-outline-primary" style={{"width": "205px"}} onClick={handleNewResponseData}><p className="p-0 m-0 text-light">Поиск</p></button>
           </div>
           
           </div>
@@ -152,7 +167,6 @@ const AdminPanel = () => {
               const date = item.elements[0].elements[0]
               const day = {...date}
               const time = {...date}
-              // .substring(10, 0)
             return (
             <div key={_.uniqueId()}className="m-1 border border-primary rounded col-md-4 col-lg-4 p-2 d-flex"
               style={{"width": "280px",

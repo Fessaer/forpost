@@ -11,7 +11,8 @@ const LoginPage = () => {
     let urle = 'https://va.fpst.ru/api/login';
     
     const form = document.querySelector('form');
-    inSetState({...inState, form})
+    // let formLogin = new FormData(form)
+    // inSetState({...inState, form})
     await fetch(urle, {
       method: 'POST',
       body: new FormData(form)
@@ -23,11 +24,12 @@ const LoginPage = () => {
       return { SessionID, ChangePasswordAtNextLogin}
     }).then((dataSession) => {
       const {SessionID, ChangePasswordAtNextLogin} = dataSession
-    if (dataSession.SessionID !== false || dataSession.SessionID !== undefined) {
+    if (dataSession.SessionID !== null && dataSession.SessionID !== undefined) {
+      // console.log(dataSession)
       const validation = true
       inSetState({...inState, validation, SessionID, ChangePasswordAtNextLogin})
     }
-  })
+  }).catch((err) => console.log(err))
   }
 
   const handleLogin = (e) => {
